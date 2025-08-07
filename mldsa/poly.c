@@ -85,7 +85,7 @@ void mld_poly_sub(mld_poly *r, const mld_poly *b)
     r->coeffs[i] = r->coeffs[i] - b->coeffs[i];
   }
 
-  mld_assert_bound(r->coeffs, MLDSA_N, (int64_t)INT32_MIN, REDUCE32_DOMAIN_MAX);
+  mld_assert_bound(r->coeffs, MLDSA_N, INT32_MIN, REDUCE32_DOMAIN_MAX);
 }
 
 void mld_poly_shiftl(mld_poly *a)

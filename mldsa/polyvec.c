@@ -160,6 +160,8 @@ void mld_polyvecl_uniform_gamma1(mld_polyvecl *v,
 void mld_polyvecl_reduce(mld_polyvecl *v)
 {
   unsigned int i;
+  mld_assert_bound_2d(v->vec, MLDSA_L, MLDSA_N, INT32_MIN,
+                      REDUCE32_DOMAIN_MAX);
 
   for (i = 0; i < MLDSA_L; ++i)
   __loop__(
@@ -191,6 +193,8 @@ void mld_polyvecl_add(mld_polyvecl *u, const mld_polyvecl *v)
   {
     mld_poly_add(&u->vec[i], &v->vec[i]);
   }
+  mld_assert_bound_2d(u->vec, MLDSA_L, MLDSA_N, INT32_MIN,
+                      REDUCE32_DOMAIN_MAX);
 }
 
 void mld_polyvecl_ntt(mld_polyvecl *v)
@@ -321,6 +325,8 @@ uint32_t mld_polyvecl_chknorm(const mld_polyvecl *v, int32_t bound)
 void mld_polyveck_reduce(mld_polyveck *v)
 {
   unsigned int i;
+  mld_assert_bound_2d(v->vec, MLDSA_K, MLDSA_N, INT32_MIN,
+                      REDUCE32_DOMAIN_MAX);
 
   for (i = 0; i < MLDSA_K; ++i)
   __loop__(
@@ -367,6 +373,8 @@ void mld_polyveck_add(mld_polyveck *u, const mld_polyveck *v)
   {
     mld_poly_add(&u->vec[i], &v->vec[i]);
   }
+  mld_assert_bound_2d(u->vec, MLDSA_L, MLDSA_N, INT32_MIN,
+                      REDUCE32_DOMAIN_MAX);
 }
 
 void mld_polyveck_sub(mld_polyveck *u, const mld_polyveck *v)
@@ -384,6 +392,9 @@ void mld_polyveck_sub(mld_polyveck *u, const mld_polyveck *v)
   {
     mld_poly_sub(&u->vec[i], &v->vec[i]);
   }
+
+  mld_assert_bound_2d(u->vec, MLDSA_K, MLDSA_N, INT32_MIN,
+                      REDUCE32_DOMAIN_MAX);
 }
 
 void mld_polyveck_shiftl(mld_polyveck *v)
