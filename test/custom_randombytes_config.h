@@ -119,52 +119,6 @@
 */
 
 /******************************************************************************
- * Name:        MLD_CONFIG_CUSTOM_MEMCPY
- *
- * Description: Set this option and define `mld_memcpy` if you want to
- *              use a custom method to copy memory instead of the standard
- *              library memcpy function.
- *
- *              The custom implementation must have the same signature and
- *              behavior as the standard memcpy function:
- *              void *mld_memcpy(void *dest, const void *src, size_t n)
- *
- *****************************************************************************/
-/* #define MLD_CONFIG_CUSTOM_MEMCPY
-   #if !defined(__ASSEMBLER__)
-   #include <stdint.h>
-   #include "sys.h"
-   static MLD_INLINE void *mld_memcpy(void *dest, const void *src, size_t n)
-   {
-       ... your implementation ...
-   }
-   #endif
-*/
-
-/******************************************************************************
- * Name:        MLD_CONFIG_CUSTOM_MEMSET
- *
- * Description: Set this option and define `mld_memset` if you want to
- *              use a custom method to set memory instead of the standard
- *              library memset function.
- *
- *              The custom implementation must have the same signature and
- *              behavior as the standard memset function:
- *              void *mld_memset(void *s, int c, size_t n)
- *
- *****************************************************************************/
-/* #define MLD_CONFIG_CUSTOM_MEMSET
-   #if !defined(__ASSEMBLER__)
-   #include <stdint.h>
-   #include "sys.h"
-   static MLD_INLINE void *mld_memset(void *s, int c, size_t n)
-   {
-       ... your implementation ...
-   }
-   #endif
-*/
-
-/******************************************************************************
  * Name:        MLD_CONFIG_CUSTOM_RANDOMBYTES
  *
  * Description: mldsa-native does not provide a secure randombytes
@@ -179,16 +133,16 @@
  *              or signature.
  *
  *****************************************************************************/
-/* #define MLD_CONFIG_CUSTOM_RANDOMBYTES
-   #if !defined(__ASSEMBLER__)
-   #include <stdint.h>
-   #include "sys.h"
-   static MLD_INLINE void mld_randombytes(uint8_t *ptr, size_t len)
-   {
-       ... your implementation ...
-   }
-   #endif
-*/
+#define MLD_CONFIG_CUSTOM_RANDOMBYTES
+#if !defined(__ASSEMBLER__)
+#include <stdint.h>
+#include "../mldsa/sys.h"
+#include "notrandombytes/notrandombytes.h"
+static MLD_INLINE void mld_randombytes(uint8_t *ptr, size_t len)
+{
+  randombytes(ptr, len);
+}
+#endif /* !__ASSEMBLER__ */
 
 /******************************************************************************
  * Name:        MLD_CONFIG_KEYGEN_PCT
