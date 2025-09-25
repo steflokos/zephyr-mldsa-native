@@ -439,32 +439,6 @@ void shake256_release(keccak_state *state)
 }
 
 /*************************************************
- * Name:        shake128
- *
- * Description: SHAKE128 XOF with non-incremental API
- *
- * Arguments:   - uint8_t *out: pointer to output
- *              - size_t outlen: requested output length in bytes
- *              - const uint8_t *in: pointer to input
- *              - size_t inlen: length of input in bytes
- **************************************************/
-void shake128(uint8_t *out, size_t outlen, const uint8_t *in, size_t inlen)
-{
-  size_t nblocks;
-  keccak_state state;
-
-  shake128_absorb_once(&state, in, inlen);
-  nblocks = outlen / SHAKE128_RATE;
-  shake128_squeezeblocks(out, nblocks, &state);
-  outlen -= nblocks * SHAKE128_RATE;
-  out += nblocks * SHAKE128_RATE;
-  shake128_squeeze(out, outlen, &state);
-
-  /* FIPS 204. Section 3.6.3 Destruction of intermediate values. */
-  mld_zeroize(&state, sizeof(state));
-}
-
-/*************************************************
  * Name:        shake256
  *
  * Description: SHAKE256 XOF with non-incremental API
@@ -488,44 +462,4 @@ void shake256(uint8_t *out, size_t outlen, const uint8_t *in, size_t inlen)
 
   /* FIPS 204. Section 3.6.3 Destruction of intermediate values. */
   mld_zeroize(&state, sizeof(state));
-}
-
-/*************************************************
- * Name:        sha3_256
- *
- * Description: SHA3-256 with non-incremental API
- *
- * Arguments:   - uint8_t *h: pointer to output (32 bytes)
- *              - const uint8_t *in: pointer to input
- *              - size_t inlen: length of input in bytes
- **************************************************/
-void sha3_256(uint8_t h[SHA3_256_HASHBYTES], const uint8_t *in, size_t inlen)
-{
-  uint64_t s[MLD_KECCAK_LANES];
-
-  keccak_absorb_once(s, SHA3_256_RATE, in, inlen, 0x06);
-  keccak_squeeze(h, SHA3_256_HASHBYTES, s, SHA3_256_RATE, SHA3_256_RATE);
-
-  /* FIPS 204. Section 3.6.3 Destruction of intermediate values. */
-  mld_zeroize(s, sizeof(s));
-}
-
-/*************************************************
- * Name:        sha3_512
- *
- * Description: SHA3-512 with non-incremental API
- *
- * Arguments:   - uint8_t *h: pointer to output (64 bytes)
- *              - const uint8_t *in: pointer to input
- *              - size_t inlen: length of input in bytes
- **************************************************/
-void sha3_512(uint8_t h[SHA3_512_HASHBYTES], const uint8_t *in, size_t inlen)
-{
-  uint64_t s[MLD_KECCAK_LANES];
-
-  keccak_absorb_once(s, SHA3_512_RATE, in, inlen, 0x06);
-  keccak_squeeze(h, SHA3_512_HASHBYTES, s, SHA3_512_RATE, SHA3_512_RATE);
-
-  /* FIPS 204. Section 3.6.3 Destruction of intermediate values. */
-  mld_zeroize(s, sizeof(s));
 }
