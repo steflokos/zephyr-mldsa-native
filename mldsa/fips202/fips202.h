@@ -31,9 +31,6 @@ typedef struct
   unsigned int pos;
 } mld_shake256ctx;
 
-#define KeccakF_RoundConstants FIPS202_NAMESPACE(KeccakF_RoundConstants)
-extern const uint64_t KeccakF_RoundConstants[];
-
 #define shake128_init FIPS202_NAMESPACE(shake128_init)
 /*************************************************
  * Name:        shake128_init
