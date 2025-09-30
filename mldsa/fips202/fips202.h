@@ -35,10 +35,9 @@ typedef struct
 /*************************************************
  * Name:        mld_shake128_init
  *
- * Description: Initializes Keccak state for use as SHAKE128 XOF
+ * Description: Initializes state for use as SHAKE128 XOF
  *
- * Arguments:   - mld_shake128ctx *state: pointer to (uninitialized) Keccak
- *                state
+ * Arguments:   - mld_shake128ctx *state: pointer to (uninitialized) state
  **************************************************/
 void mld_shake128_init(mld_shake128ctx *state)
 __contract__(
@@ -51,10 +50,10 @@ __contract__(
 /*************************************************
  * Name:        mld_shake128_absorb
  *
- * Description: Absorb step of the SHAKE128 XOF; incremental.
+ * Description: Absorb step of the SHAKE128 XOF. Absorbs arbitrarily many bytes.
+ *              Can be called multiple times to absorb multiple chunks of data.
  *
- * Arguments:   - mld_shake128ctx *state: pointer to (initialized) output
- *                Keccak state
+ * Arguments:   - mld_shake128ctx *state: pointer to (initialized) output state
  *              - const uint8_t *in: pointer to input to be absorbed into s
  *              - size_t inlen: length of input in bytes
  **************************************************/
@@ -73,9 +72,9 @@ __contract__(
 /*************************************************
  * Name:        mld_shake128_finalize
  *
- * Description: Finalize absorb step of the SHAKE128 XOF.
+ * Description: Concludes the absorb phase of the SHAKE128 XOF.
  *
- * Arguments:   - mld_shake128ctx *state: pointer to Keccak state
+ * Arguments:   - mld_shake128ctx *state: pointer to state
  **************************************************/
 void mld_shake128_finalize(mld_shake128ctx *state)
 __contract__(
@@ -95,7 +94,7 @@ __contract__(
  * Arguments:   - uint8_t *out: pointer to output blocks
  *              - size_t outlen : number of bytes to be squeezed (written to
  *output)
- *              - mld_shake128ctx *s: pointer to input/output Keccak state
+ *              - mld_shake128ctx *s: pointer to input/output state
  **************************************************/
 void mld_shake128_squeeze(uint8_t *out, size_t outlen, mld_shake128ctx *state)
 __contract__(
@@ -114,7 +113,7 @@ __contract__(
  *
  * Description: Release and securely zero the SHAKE128 state.
  *
- * Arguments:   - mld_shake128ctx *state: pointer to Keccak state
+ * Arguments:   - mld_shake128ctx *state: pointer to state
  **************************************************/
 void mld_shake128_release(mld_shake128ctx *state)
 __contract__(
@@ -126,10 +125,9 @@ __contract__(
 /*************************************************
  * Name:        mld_shake256_init
  *
- * Description: Initializes Keccak state for use as SHAKE256 XOF
+ * Description: Initializes state for use as SHAKE256 XOF
  *
- * Arguments:   - mld_shake256ctx *state: pointer to (uninitialized) Keccak
- *state
+ * Arguments:   - mld_shake256ctx *state: pointer to (uninitialized) state
  **************************************************/
 void mld_shake256_init(mld_shake256ctx *state)
 __contract__(
@@ -142,10 +140,10 @@ __contract__(
 /*************************************************
  * Name:        mld_shake256_absorb
  *
- * Description: Absorb step of the SHAKE256 XOF; incremental.
+ * Description: Absorb step of the SHAKE256 XOF. Absorbs arbitrarily many bytes.
+ *              Can be called multiple times to absorb multiple chunks of data.
  *
- * Arguments:   - mld_shake256ctx *state: pointer to (initialized) output
- *                Keccak state
+ * Arguments:   - mld_shake256ctx *state: pointer to (initialized) output state
  *              - const uint8_t *in: pointer to input to be absorbed into s
  *              - size_t inlen: length of input in bytes
  **************************************************/
@@ -164,9 +162,9 @@ __contract__(
 /*************************************************
  * Name:        mld_shake256_finalize
  *
- * Description: Finalize absorb step of the SHAKE256 XOF.
+ * Description: Concludes the absorb phase of the SHAKE256 XOF.
  *
- * Arguments:   - mld_shake256ctx *state: pointer to Keccak state
+ * Arguments:   - mld_shake256ctx *state: pointer to state
  **************************************************/
 void mld_shake256_finalize(mld_shake256ctx *state)
 __contract__(
@@ -186,7 +184,7 @@ __contract__(
  * Arguments:   - uint8_t *out: pointer to output blocks
  *              - size_t outlen : number of bytes to be squeezed (written to
  *output)
- *              - mld_shake256ctx *s: pointer to input/output Keccak state
+ *              - mld_shake256ctx *s: pointer to input/output state
  **************************************************/
 void mld_shake256_squeeze(uint8_t *out, size_t outlen, mld_shake256ctx *state)
 __contract__(
@@ -205,7 +203,7 @@ __contract__(
  *
  * Description: Release and securely zero the SHAKE256 state.
  *
- * Arguments:   - mld_shake256ctx *state: pointer to Keccak state
+ * Arguments:   - mld_shake256ctx *state: pointer to state
  **************************************************/
 void mld_shake256_release(mld_shake256ctx *state)
 __contract__(
