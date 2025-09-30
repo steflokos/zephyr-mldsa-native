@@ -79,4 +79,7 @@ void mld_poly_use_hint_32_asm(int32_t *b, const int32_t *a, const int32_t *h);
 #define mld_poly_use_hint_88_asm MLD_NAMESPACE(poly_use_hint_88_asm)
 void mld_poly_use_hint_88_asm(int32_t *b, const int32_t *a, const int32_t *h);
 
+#define mld_poly_chknorm_asm MLD_NAMESPACE(poly_chknorm_asm)
+uint32_t mld_poly_chknorm_asm(const int32_t *a, int32_t B);
+
 #endif /* !MLD_NATIVE_AARCH64_SRC_ARITH_NATIVE_AARCH64_H */
