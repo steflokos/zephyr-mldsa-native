@@ -264,8 +264,8 @@ static MLD_INLINE void mld_poly_use_hint_88_native(int32_t *b, const int32_t *a,
  * Arguments:   - const int32_t *a: pointer to polynomial
  *              - int32_t B: norm bound
  *
- * Returns 0 if norm is strictly smaller than B <= (MLDSA_Q-1)/8 and 0xFFFFFFFF
- * otherwise.
+ * Returns 0 if the infinity norm is strictly smaller than B, and 0xFFFFFFFF
+ * otherwise. B must not be larger than MLDSA_Q - REDUCE32_RANGE_MAX.
  **************************************************/
 static MLD_INLINE uint32_t mld_poly_chknorm_native(const int32_t *a, int32_t B);
 #endif /* MLD_USE_NATIVE_POLY_CHKNORM */
