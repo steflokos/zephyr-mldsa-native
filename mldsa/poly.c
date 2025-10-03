@@ -320,10 +320,17 @@ void mld_poly_use_hint(mld_poly *b, const mld_poly *a, const mld_poly *h)
  * that it is okay to leak which coefficient violates the bound (while the
  * coefficient itself must remain secret).
  * We instead perform everything in constant-time.
+ * Also it is sufficient to check that it is smaller than
+ * MLDSA_Q - REDUCE32_RANGE_MAX > (MLDSA_Q - 1) / 8).
  */
 MLD_INTERNAL_API
 uint32_t mld_poly_chknorm(const mld_poly *a, int32_t B)
 {
+#if defined(MLD_USE_NATIVE_POLY_CHKNORM)
+  /* TODO: proof */
+  mld_assert_bound(a->coeffs, MLDSA_N, -REDUCE32_RANGE_MAX, REDUCE32_RANGE_MAX);
+  return mld_poly_chknorm_native(a->coeffs, B);
+#else
   unsigned int i;
   uint32_t t = 0;
   mld_assert_bound(a->coeffs, MLDSA_N, -REDUCE32_RANGE_MAX, REDUCE32_RANGE_MAX);
@@ -336,6 +343,17 @@ uint32_t mld_poly_chknorm(const mld_poly *a, int32_t B)
     invariant((t == 0) == array_abs_bound(a->coeffs, 0, i, B))
   )
   {
+    /*
+     * Since we know that -REDUCE32_RANGE_MAX <= a < REDUCE32_RANGE_MAX,
+     * and B <= MLDSA_Q - REDUCE32_RANGE_MAX, to check if
+     * -B < (a mod± MLDSA_Q) < B, it suffices to check if -B < a < B.
+     *
+     * We prove this to be true using the following CBMC assertions.
+     * a ==> b expressed as !a || b to also allow run-time assertion.
+     */
+    mld_assert(a->coeffs[i] < B || a->coeffs[i] - MLDSA_Q <= -B);
+    mld_assert(a->coeffs[i] > -B || a->coeffs[i] + MLDSA_Q >= B);
+
     /* Reference: Leaks which coefficient violates the bound via a conditional.
      * We are more conservative to reduce the number of declassifications in
      * constant-time testing.
@@ -346,6 +364,7 @@ uint32_t mld_poly_chknorm(const mld_poly *a, int32_t B)
   }
 
   return t;
+#endif /* !MLD_USE_NATIVE_POLY_CHKNORM */
 }
 
 /*************************************************

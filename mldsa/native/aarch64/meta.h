@@ -18,6 +18,7 @@
 #define MLD_USE_NATIVE_POLY_CADDQ
 #define MLD_USE_NATIVE_POLY_USE_HINT_32
 #define MLD_USE_NATIVE_POLY_USE_HINT_88
+#define MLD_USE_NATIVE_POLY_CHKNORM
 
 /* Identifier for this backend so that source and assembly files
  * in the build can be appropriately guarded. */
@@ -125,6 +126,11 @@ static MLD_INLINE void mld_poly_use_hint_88_native(int32_t *b, const int32_t *a,
                                                    const int32_t *h)
 {
   mld_poly_use_hint_88_asm(b, a, h);
+}
+
+static MLD_INLINE uint32_t mld_poly_chknorm_native(const int32_t *a, int32_t B)
+{
+  return mld_poly_chknorm_asm(a, B);
 }
 
 #endif /* !__ASSEMBLER__ */
