@@ -16,7 +16,9 @@ typedef struct
   mld_poly vec[MLDSA_L];
 } mld_polyvecl;
 
-#define mld_polyvecl_uniform_gamma1 MLD_NAMESPACE(polyvecl_uniform_gamma1)
+#define mld_polyvecl MLD_ADD_PARAM_SET(mld_polyvecl)
+
+#define mld_polyvecl_uniform_gamma1 MLD_NAMESPACE_KL(polyvecl_uniform_gamma1)
 /*************************************************
  * Name:        mld_polyvecl_uniform_gamma1
  *
@@ -42,7 +44,7 @@ __contract__(
     array_bound(v->vec[k0].coeffs, 0, MLDSA_N, -(MLDSA_GAMMA1 - 1), MLDSA_GAMMA1 + 1)))
 );
 
-#define mld_polyvecl_reduce MLD_NAMESPACE(polyvecl_reduce)
+#define mld_polyvecl_reduce MLD_NAMESPACE_KL(polyvecl_reduce)
 /*************************************************
  * Name:        mld_polyvecl_reduce
  *
@@ -63,7 +65,7 @@ __contract__(
     array_bound(v->vec[k1].coeffs, 0, MLDSA_N, -REDUCE32_RANGE_MAX, REDUCE32_RANGE_MAX)))
 );
 
-#define mld_polyvecl_add MLD_NAMESPACE(polyvecl_add)
+#define mld_polyvecl_add MLD_NAMESPACE_KL(polyvecl_add)
 /*************************************************
  * Name:        mld_polyvecl_add
  *
@@ -88,7 +90,7 @@ __contract__(
                  array_bound(u->vec[k6].coeffs, 0, MLDSA_N, INT32_MIN, REDUCE32_DOMAIN_MAX)))
 );
 
-#define mld_polyvecl_ntt MLD_NAMESPACE(polyvecl_ntt)
+#define mld_polyvecl_ntt MLD_NAMESPACE_KL(polyvecl_ntt)
 /*************************************************
  * Name:        mld_polyvecl_ntt
  *
@@ -106,7 +108,7 @@ __contract__(
   ensures(forall(k1, 0, MLDSA_L, array_abs_bound(v->vec[k1].coeffs, 0, MLDSA_N, MLD_NTT_BOUND)))
 );
 
-#define mld_polyvecl_invntt_tomont MLD_NAMESPACE(polyvecl_invntt_tomont)
+#define mld_polyvecl_invntt_tomont MLD_NAMESPACE_KL(polyvecl_invntt_tomont)
 /*************************************************
  * Name:        mld_polyvecl_invntt_tomont
  *
@@ -127,7 +129,7 @@ __contract__(
 );
 
 #define mld_polyvecl_pointwise_poly_montgomery \
-  MLD_NAMESPACE(polyvecl_pointwise_poly_montgomery)
+  MLD_NAMESPACE_KL(polyvecl_pointwise_poly_montgomery)
 /*************************************************
  * Name:        mld_polyvecl_pointwise_poly_montgomery
  *
@@ -153,7 +155,7 @@ __contract__(
 );
 
 #define mld_polyvecl_pointwise_acc_montgomery \
-  MLD_NAMESPACE(polyvecl_pointwise_acc_montgomery)
+  MLD_NAMESPACE_KL(polyvecl_pointwise_acc_montgomery)
 /*************************************************
  * Name:        mld_polyvecl_pointwise_acc_montgomery
  *
@@ -191,7 +193,7 @@ __contract__(
 );
 
 
-#define mld_polyvecl_chknorm MLD_NAMESPACE(polyvecl_chknorm)
+#define mld_polyvecl_chknorm MLD_NAMESPACE_KL(polyvecl_chknorm)
 /*************************************************
  * Name:        mld_polyvecl_chknorm
  *
@@ -221,7 +223,9 @@ typedef struct
   mld_poly vec[MLDSA_K];
 } mld_polyveck;
 
-#define mld_polyveck_reduce MLD_NAMESPACE(polyveck_reduce)
+#define mld_polyveck MLD_ADD_PARAM_SET(mld_polyveck)
+
+#define mld_polyveck_reduce MLD_NAMESPACE_KL(polyveck_reduce)
 /*************************************************
  * Name:        polyveck_reduce
  *
@@ -241,7 +245,7 @@ __contract__(
     array_bound(v->vec[k1].coeffs, 0, MLDSA_N, -REDUCE32_RANGE_MAX, REDUCE32_RANGE_MAX)))
 );
 
-#define mld_polyveck_caddq MLD_NAMESPACE(polyveck_caddq)
+#define mld_polyveck_caddq MLD_NAMESPACE_KL(polyveck_caddq)
 /*************************************************
  * Name:        mld_polyveck_caddq
  *
@@ -261,7 +265,7 @@ __contract__(
     array_bound(v->vec[k1].coeffs, 0, MLDSA_N, 0, MLDSA_Q)))
 );
 
-#define mld_polyveck_add MLD_NAMESPACE(polyveck_add)
+#define mld_polyveck_add MLD_NAMESPACE_KL(polyveck_add)
 /*************************************************
  * Name:        mld_polyveck_add
  *
@@ -286,7 +290,7 @@ __contract__(
                 array_bound(u->vec[k6].coeffs, 0, MLDSA_N, INT32_MIN, REDUCE32_DOMAIN_MAX)))
 );
 
-#define mld_polyveck_sub MLD_NAMESPACE(polyveck_sub)
+#define mld_polyveck_sub MLD_NAMESPACE_KL(polyveck_sub)
 /*************************************************
  * Name:        mld_polyveck_sub
  *
@@ -309,7 +313,7 @@ __contract__(
                  array_bound(u->vec[k0].coeffs, 0, MLDSA_N, INT32_MIN, REDUCE32_DOMAIN_MAX)))
 );
 
-#define mld_polyveck_shiftl MLD_NAMESPACE(polyveck_shiftl)
+#define mld_polyveck_shiftl MLD_NAMESPACE_KL(polyveck_shiftl)
 /*************************************************
  * Name:        mld_polyveck_shiftl
  *
@@ -328,7 +332,7 @@ __contract__(
   ensures(forall(k1, 0, MLDSA_K, array_bound(v->vec[k1].coeffs, 0, MLDSA_N, 0, MLDSA_Q)))
 );
 
-#define mld_polyveck_ntt MLD_NAMESPACE(polyveck_ntt)
+#define mld_polyveck_ntt MLD_NAMESPACE_KL(polyveck_ntt)
 /*************************************************
  * Name:        mld_polyveck_ntt
  *
@@ -346,7 +350,7 @@ __contract__(
   ensures(forall(k1, 0, MLDSA_K, array_abs_bound(v->vec[k1].coeffs, 0, MLDSA_N, MLD_NTT_BOUND)))
 );
 
-#define mld_polyveck_invntt_tomont MLD_NAMESPACE(polyveck_invntt_tomont)
+#define mld_polyveck_invntt_tomont MLD_NAMESPACE_KL(polyveck_invntt_tomont)
 /*************************************************
  * Name:        mld_polyveck_invntt_tomont
  *
@@ -366,7 +370,7 @@ __contract__(
 );
 
 #define mld_polyveck_pointwise_poly_montgomery \
-  MLD_NAMESPACE(polyveck_pointwise_poly_montgomery)
+  MLD_NAMESPACE_KL(polyveck_pointwise_poly_montgomery)
 /*************************************************
  * Name:        mld_polyveck_pointwise_poly_montgomery
  *
@@ -391,7 +395,7 @@ __contract__(
   ensures(forall(k1, 0, MLDSA_K, array_abs_bound(r->vec[k1].coeffs, 0, MLDSA_N, MLDSA_Q)))
 );
 
-#define mld_polyveck_chknorm MLD_NAMESPACE(polyveck_chknorm)
+#define mld_polyveck_chknorm MLD_NAMESPACE_KL(polyveck_chknorm)
 /*************************************************
  * Name:        mld_polyveck_chknorm
  *
@@ -416,7 +420,7 @@ __contract__(
   ensures((return_value == 0) == forall(k1, 0, MLDSA_K, array_abs_bound(v->vec[k1].coeffs, 0, MLDSA_N, B)))
 );
 
-#define mld_polyveck_power2round MLD_NAMESPACE(polyveck_power2round)
+#define mld_polyveck_power2round MLD_NAMESPACE_KL(polyveck_power2round)
 /*************************************************
  * Name:        mld_polyveck_power2round
  *
@@ -445,7 +449,7 @@ __contract__(
   ensures(forall(k2, 0, MLDSA_K, array_bound(v1->vec[k2].coeffs, 0, MLDSA_N, 0, ((MLDSA_Q - 1) / MLD_2_POW_D) + 1)))
 );
 
-#define mld_polyveck_decompose MLD_NAMESPACE(polyveck_decompose)
+#define mld_polyveck_decompose MLD_NAMESPACE_KL(polyveck_decompose)
 /*************************************************
  * Name:        mld_polyveck_decompose
  *
@@ -478,7 +482,7 @@ __contract__(
                  array_abs_bound(v0->vec[k2].coeffs, 0, MLDSA_N, MLDSA_GAMMA2+1)))
 );
 
-#define mld_polyveck_make_hint MLD_NAMESPACE(polyveck_make_hint)
+#define mld_polyveck_make_hint MLD_NAMESPACE_KL(polyveck_make_hint)
 /*************************************************
  * Name:        mld_polyveck_make_hint
  *
@@ -502,7 +506,7 @@ __contract__(
   ensures(forall(k1, 0, MLDSA_K, array_bound(h->vec[k1].coeffs, 0, MLDSA_N, 0, 2)))
 );
 
-#define mld_polyveck_use_hint MLD_NAMESPACE(polyveck_use_hint)
+#define mld_polyveck_use_hint MLD_NAMESPACE_KL(polyveck_use_hint)
 /*************************************************
  * Name:        mld_polyveck_use_hint
  *
@@ -529,7 +533,7 @@ __contract__(
     array_bound(w->vec[k2].coeffs, 0, MLDSA_N, 0, (MLDSA_Q-1)/(2*MLDSA_GAMMA2))))
 );
 
-#define mld_polyveck_pack_w1 MLD_NAMESPACE(polyveck_pack_w1)
+#define mld_polyveck_pack_w1 MLD_NAMESPACE_KL(polyveck_pack_w1)
 /*************************************************
  * Name:        mld_polyveck_pack_w1
  *
@@ -552,7 +556,7 @@ __contract__(
   assigns(object_whole(r))
 );
 
-#define mld_polyveck_pack_eta MLD_NAMESPACE(polyveck_pack_eta)
+#define mld_polyveck_pack_eta MLD_NAMESPACE_KL(polyveck_pack_eta)
 /*************************************************
  * Name:        mld_polyveck_pack_eta
  *
@@ -574,7 +578,7 @@ __contract__(
   assigns(object_whole(r))
 );
 
-#define mld_polyvecl_pack_eta MLD_NAMESPACE(polyvecl_pack_eta)
+#define mld_polyvecl_pack_eta MLD_NAMESPACE_KL(polyvecl_pack_eta)
 /*************************************************
  * Name:        mld_polyvecl_pack_eta
  *
@@ -596,7 +600,7 @@ __contract__(
   assigns(object_whole(r))
 );
 
-#define mld_polyvecl_pack_z MLD_NAMESPACE(polyvecl_pack_z)
+#define mld_polyvecl_pack_z MLD_NAMESPACE_KL(polyvecl_pack_z)
 /*************************************************
  * Name:        mld_polyvecl_pack_z
  *
@@ -618,7 +622,7 @@ __contract__(
   assigns(object_whole(r))
 );
 
-#define mld_polyveck_pack_t0 MLD_NAMESPACE(polyveck_pack_t0)
+#define mld_polyveck_pack_t0 MLD_NAMESPACE_KL(polyveck_pack_t0)
 /*************************************************
  * Name:        mld_polyveck_pack_t0
  *
@@ -640,7 +644,7 @@ __contract__(
   assigns(object_whole(r))
 );
 
-#define mld_polyvecl_unpack_eta MLD_NAMESPACE(polyvecl_unpack_eta)
+#define mld_polyvecl_unpack_eta MLD_NAMESPACE_KL(polyvecl_unpack_eta)
 /*************************************************
  * Name:        mld_polyvecl_unpack_eta
  *
@@ -662,7 +666,7 @@ __contract__(
     array_bound(p->vec[k1].coeffs, 0, MLDSA_N, MLD_POLYETA_UNPACK_LOWER_BOUND, MLDSA_ETA + 1)))
 );
 
-#define mld_polyvecl_unpack_z MLD_NAMESPACE(polyvecl_unpack_z)
+#define mld_polyvecl_unpack_z MLD_NAMESPACE_KL(polyvecl_unpack_z)
 /*************************************************
  * Name:        mld_polyvecl_unpack_z
  *
@@ -684,7 +688,7 @@ __contract__(
     array_bound(z->vec[k1].coeffs, 0, MLDSA_N, -(MLDSA_GAMMA1 - 1), MLDSA_GAMMA1 + 1)))
 );
 
-#define mld_polyveck_unpack_eta MLD_NAMESPACE(polyveck_unpack_eta)
+#define mld_polyveck_unpack_eta MLD_NAMESPACE_KL(polyveck_unpack_eta)
 /*************************************************
  * Name:        mld_polyveck_unpack_eta
  *
@@ -706,7 +710,7 @@ __contract__(
     array_bound(p->vec[k1].coeffs, 0, MLDSA_N, MLD_POLYETA_UNPACK_LOWER_BOUND, MLDSA_ETA + 1)))
 );
 
-#define mld_polyveck_unpack_t0 MLD_NAMESPACE(polyveck_unpack_t0)
+#define mld_polyveck_unpack_t0 MLD_NAMESPACE_KL(polyveck_unpack_t0)
 /*************************************************
  * Name:        mld_polyveck_unpack_t0
  *
@@ -728,7 +732,7 @@ __contract__(
     array_bound(p->vec[k1].coeffs, 0, MLDSA_N, -(1<<(MLDSA_D-1)) + 1, (1<<(MLDSA_D-1)) + 1)))
 );
 
-#define mld_polyvec_matrix_expand MLD_NAMESPACE(polyvec_matrix_expand)
+#define mld_polyvec_matrix_expand MLD_NAMESPACE_KL(polyvec_matrix_expand)
 /*************************************************
  * Name:        mld_polyvec_matrix_expand
  *
@@ -753,7 +757,7 @@ __contract__(
 
 
 #define mld_polyvec_matrix_pointwise_montgomery \
-  MLD_NAMESPACE(polyvec_matrix_pointwise_montgomery)
+  MLD_NAMESPACE_KL(polyvec_matrix_pointwise_montgomery)
 /*************************************************
  * Name:        mld_polyvec_matrix_pointwise_montgomery
  *
