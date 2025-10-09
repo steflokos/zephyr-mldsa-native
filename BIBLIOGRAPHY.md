@@ -50,6 +50,7 @@ source code and documentation.
   - [mldsa/fips202/fips202x4.c](mldsa/fips202/fips202x4.c)
   - [mldsa/ntt.h](mldsa/ntt.h)
   - [mldsa/poly.c](mldsa/poly.c)
+  - [mldsa/poly_kl.c](mldsa/poly_kl.c)
   - [mldsa/polyvec.c](mldsa/polyvec.c)
   - [mldsa/rounding.h](mldsa/rounding.h)
   - [mldsa/sign.c](mldsa/sign.c)
@@ -127,6 +128,7 @@ source code and documentation.
   - [README.md](README.md)
   - [mldsa/ntt.c](mldsa/ntt.c)
   - [mldsa/poly.c](mldsa/poly.c)
+  - [mldsa/poly_kl.c](mldsa/poly_kl.c)
 
 ### `REF_AVX2`
 

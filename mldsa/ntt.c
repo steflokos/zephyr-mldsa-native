@@ -12,6 +12,10 @@
  *   https://github.com/pq-crystals/dilithium/tree/master/ref
  */
 
+#include "common.h"
+
+#if !defined(MLD_CONFIG_MULTILEVEL_NO_SHARED)
+
 #include <stdint.h>
 
 #include "ntt.h"
@@ -244,3 +248,7 @@ void mld_invntt_tomont(int32_t a[MLDSA_N])
     a[j] = mld_fqscale(a[j]);
   }
 }
+
+#else  /* !MLD_CONFIG_MULTILEVEL_NO_SHARED */
+MLD_EMPTY_CU(mld_ntt)
+#endif /* MLD_CONFIG_MULTILEVEL_NO_SHARED */

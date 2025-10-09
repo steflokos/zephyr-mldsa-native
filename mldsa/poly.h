@@ -385,7 +385,7 @@ __contract__(
   ensures(array_bound(vec3->coeffs, 0, MLDSA_N, 0, MLDSA_Q))
 );
 
-#define mld_poly_uniform_eta_4x MLD_NAMESPACE(poly_uniform_eta_4x)
+#define mld_poly_uniform_eta_4x MLD_NAMESPACE_KL(poly_uniform_eta_4x)
 /*************************************************
  * Name:        mld_poly_uniform_eta
  *
@@ -425,7 +425,7 @@ __contract__(
   ensures(array_abs_bound(r3->coeffs, 0, MLDSA_N, MLDSA_ETA + 1))
 );
 
-#define mld_poly_uniform_gamma1 MLD_NAMESPACE(poly_uniform_gamma1)
+#define mld_poly_uniform_gamma1 MLD_NAMESPACE_KL(poly_uniform_gamma1)
 /*************************************************
  * Name:        mld_poly_uniform_gamma1
  *
@@ -449,7 +449,7 @@ __contract__(
 );
 
 
-#define mld_poly_uniform_gamma1_4x MLD_NAMESPACE(poly_uniform_gamma1_4x)
+#define mld_poly_uniform_gamma1_4x MLD_NAMESPACE_KL(poly_uniform_gamma1_4x)
 /*************************************************
  * Name:        mld_poly_uniform_gamma1_4x
  *
@@ -485,7 +485,7 @@ __contract__(
 );
 
 
-#define mld_poly_challenge MLD_NAMESPACE(poly_challenge)
+#define mld_poly_challenge MLD_NAMESPACE_KL(poly_challenge)
 /*************************************************
  * Name:        mld_poly_challenge
  *
@@ -507,7 +507,7 @@ __contract__(
   ensures(array_bound(c->coeffs, 0, MLDSA_N, -1, 2))
 );
 
-#define mld_polyeta_pack MLD_NAMESPACE(polyeta_pack)
+#define mld_polyeta_pack MLD_NAMESPACE_KL(polyeta_pack)
 /*************************************************
  * Name:        mld_polyeta_pack
  *
@@ -542,7 +542,7 @@ __contract__(
 #error "Invalid value of MLDSA_ETA"
 #endif
 
-#define mld_polyeta_unpack MLD_NAMESPACE(polyeta_unpack)
+#define mld_polyeta_unpack MLD_NAMESPACE_KL(polyeta_unpack)
 /*************************************************
  * Name:        mld_polyeta_unpack
  *
@@ -639,7 +639,7 @@ __contract__(
   ensures(array_bound(r->coeffs, 0, MLDSA_N, -(1<<(MLDSA_D-1)) + 1, (1<<(MLDSA_D-1)) + 1))
 );
 
-#define mld_polyz_pack MLD_NAMESPACE(polyz_pack)
+#define mld_polyz_pack MLD_NAMESPACE_KL(polyz_pack)
 /*************************************************
  * Name:        mld_polyz_pack
  *
@@ -659,7 +659,7 @@ __contract__(
   assigns(object_whole(r))
 );
 
-#define mld_polyz_unpack MLD_NAMESPACE(polyz_unpack)
+#define mld_polyz_unpack MLD_NAMESPACE_KL(polyz_unpack)
 /*************************************************
  * Name:        mld_polyz_unpack
  *
@@ -679,7 +679,7 @@ __contract__(
 );
 
 
-#define mld_polyw1_pack MLD_NAMESPACE(polyw1_pack)
+#define mld_polyw1_pack MLD_NAMESPACE_KL(polyw1_pack)
 /*************************************************
  * Name:        mld_polyw1_pack
  *

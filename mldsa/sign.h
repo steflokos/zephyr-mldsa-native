@@ -23,7 +23,17 @@
 #include "polyvec.h"
 #include "sys.h"
 
-#define crypto_sign_keypair_internal MLD_NAMESPACE(keypair_internal)
+#define crypto_sign_keypair_internal MLD_NAMESPACE_KL(keypair_internal)
+#define crypto_sign_keypair MLD_NAMESPACE_KL(keypair)
+#define crypto_sign_signature_internal MLD_NAMESPACE_KL(signature_internal)
+#define crypto_sign_signature MLD_NAMESPACE_KL(signature)
+#define crypto_sign_signature_extmu MLD_NAMESPACE_KL(signature_extmu)
+#define crypto_sign MLD_NAMESPACE_KL(crypto_sign)
+#define crypto_sign_verify_internal MLD_NAMESPACE_KL(verify_internal)
+#define crypto_sign_verify MLD_NAMESPACE_KL(verify)
+#define crypto_sign_verify_extmu MLD_NAMESPACE_KL(verify_extmu)
+#define crypto_sign_open MLD_NAMESPACE_KL(open)
+
 /*************************************************
  * Name:        crypto_sign_keypair_internal
  *
@@ -56,7 +66,6 @@ __contract__(
   ensures(return_value == 0 || return_value == -1)
 );
 
-#define crypto_sign_keypair MLD_NAMESPACE(keypair)
 /*************************************************
  * Name:        crypto_sign_keypair
  *
@@ -85,7 +94,6 @@ __contract__(
   ensures(return_value == 0 || return_value == -1)
 );
 
-#define crypto_sign_signature_internal MLD_NAMESPACE(signature_internal)
 /*************************************************
  * Name:        crypto_sign_signature_internal
  *
@@ -134,7 +142,6 @@ __contract__(
           (return_value == -1 && *siglen == 0))
 );
 
-#define crypto_sign_signature MLD_NAMESPACE(signature)
 /*************************************************
  * Name:        crypto_sign_signature
  *
@@ -174,7 +181,6 @@ __contract__(
           (return_value == -1 && *siglen == 0))
 );
 
-#define crypto_sign_signature_extmu MLD_NAMESPACE(signature_extmu)
 /*************************************************
  * Name:        crypto_sign_signature_extmu
  *
@@ -208,7 +214,6 @@ __contract__(
           (return_value == -1 && *siglen == 0))
 );
 
-#define crypto_sign MLD_NAMESPACETOP
 /*************************************************
  * Name:        crypto_sign
  *
@@ -245,7 +250,6 @@ __contract__(
           (return_value == -1))
 );
 
-#define crypto_sign_verify_internal MLD_NAMESPACE(verify_internal)
 /*************************************************
  * Name:        crypto_sign_verify_internal
  *
@@ -282,7 +286,6 @@ __contract__(
   ensures(return_value == 0 || return_value == -1)
 );
 
-#define crypto_sign_verify MLD_NAMESPACE(verify)
 /*************************************************
  * Name:        crypto_sign_verify
  *
@@ -318,7 +321,6 @@ __contract__(
   ensures(return_value == 0 || return_value == -1)
 );
 
-#define crypto_sign_verify_extmu MLD_NAMESPACE(verify_extmu)
 /*************************************************
  * Name:        crypto_sign_verify_extmu
  *
@@ -348,7 +350,6 @@ __contract__(
   ensures(return_value == 0 || return_value == -1)
 );
 
-#define crypto_sign_open MLD_NAMESPACE(open)
 /*************************************************
  * Name:        crypto_sign_open
  *

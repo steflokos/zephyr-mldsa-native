@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include "polyvec.h"
 
-#define mld_pack_pk MLD_NAMESPACE(pack_pk)
+#define mld_pack_pk MLD_NAMESPACE_KL(pack_pk)
 /*************************************************
  * Name:        mld_pack_pk
  *
@@ -31,7 +31,7 @@ __contract__(
 );
 
 
-#define mld_pack_sk MLD_NAMESPACE(pack_sk)
+#define mld_pack_sk MLD_NAMESPACE_KL(pack_sk)
 /*************************************************
  * Name:        mld_pack_sk
  *
@@ -69,7 +69,7 @@ __contract__(
 );
 
 
-#define mld_pack_sig MLD_NAMESPACE(pack_sig)
+#define mld_pack_sig MLD_NAMESPACE_KL(pack_sig)
 /*************************************************
  * Name:        mld_pack_sig
  *
@@ -104,7 +104,7 @@ __contract__(
   assigns(memory_slice(sig, CRYPTO_BYTES))
 );
 
-#define mld_unpack_pk MLD_NAMESPACE(unpack_pk)
+#define mld_unpack_pk MLD_NAMESPACE_KL(unpack_pk)
 /*************************************************
  * Name:        mld_unpack_pk
  *
@@ -128,7 +128,7 @@ __contract__(
 );
 
 
-#define mld_unpack_sk MLD_NAMESPACE(unpack_sk)
+#define mld_unpack_sk MLD_NAMESPACE_KL(unpack_sk)
 /*************************************************
  * Name:        mld_unpack_sk
  *
@@ -169,7 +169,7 @@ __contract__(
     array_bound(s2->vec[k2].coeffs, 0, MLDSA_N, MLD_POLYETA_UNPACK_LOWER_BOUND, MLDSA_ETA + 1)))
 );
 
-#define mld_unpack_sig MLD_NAMESPACE(unpack_sig)
+#define mld_unpack_sig MLD_NAMESPACE_KL(unpack_sig)
 /*************************************************
  * Name:        mld_unpack_sig
  *
