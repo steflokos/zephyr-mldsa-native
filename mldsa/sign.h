@@ -37,6 +37,10 @@
   MLD_NAMESPACE_KL(signature_pre_hash_internal)
 #define crypto_sign_verify_pre_hash_internal \
   MLD_NAMESPACE_KL(verify_pre_hash_internal)
+#define crypto_sign_signature_pre_hash_shake256 \
+  MLD_NAMESPACE_KL(signature_pre_hash_shake256)
+#define crypto_sign_verify_pre_hash_shake256 \
+  MLD_NAMESPACE_KL(verify_pre_hash_shake256)
 
 /*************************************************
  * Hash algorithm enumeration for pre-hash functions
@@ -495,6 +499,83 @@ __contract__(
   requires(siglen <= MLD_MAX_BUFFER_SIZE)
   requires(memory_no_alias(sig, siglen))
   requires(memory_no_alias(ph, phlen))
+  requires(ctxlen == 0 || memory_no_alias(ctx, ctxlen))
+  requires(memory_no_alias(pk, CRYPTO_PUBLICKEYBYTES))
+  ensures(return_value == 0 || return_value == -1)
+);
+
+/*************************************************
+ * Name:        crypto_sign_signature_pre_hash_shake256
+ *
+ * Description: FIPS 204: Algorithm 4 HashML-DSA.Sign with SHAKE256.
+ *              Computes signature with pre-hashed message using SHAKE256.
+ *              This function computes the SHAKE256 hash of the message
+ *internally.
+ *
+ * Arguments:   - uint8_t *sig: pointer to output signature (of length
+ *                              CRYPTO_BYTES)
+ *              - size_t *siglen: pointer to output length of signature
+ *              - const uint8_t *m: pointer to message to be hashed and signed
+ *              - size_t mlen: length of message
+ *              - const uint8_t *ctx: pointer to context string
+ *              - size_t ctxlen: length of context string
+ *              - const uint8_t *rnd: pointer to random seed
+ *              - const uint8_t *sk: pointer to bit-packed secret key
+ *
+ * Returns 0 (success) or -1 (context string too long OR nonce exhaustion)
+ **************************************************/
+MLD_MUST_CHECK_RETURN_VALUE
+MLD_EXTERNAL_API
+int crypto_sign_signature_pre_hash_shake256(uint8_t *sig, size_t *siglen,
+                                            const uint8_t *m, size_t mlen,
+                                            const uint8_t *ctx, size_t ctxlen,
+                                            const uint8_t rnd[MLDSA_RNDBYTES],
+                                            const uint8_t *sk)
+__contract__(
+  requires(mlen <= MLD_MAX_BUFFER_SIZE)
+  requires(ctxlen <= MLD_MAX_BUFFER_SIZE)
+  requires(memory_no_alias(sig, CRYPTO_BYTES))
+  requires(memory_no_alias(siglen, sizeof(size_t)))
+  requires(memory_no_alias(m, mlen))
+  requires(ctxlen == 0 || memory_no_alias(ctx, ctxlen))
+  requires(memory_no_alias(rnd, MLDSA_RNDBYTES))
+  requires(memory_no_alias(sk, CRYPTO_SECRETKEYBYTES))
+  assigns(memory_slice(sig, CRYPTO_BYTES))
+  assigns(object_whole(siglen))
+  ensures((return_value == 0 && *siglen == CRYPTO_BYTES) ||
+          (return_value == -1 && *siglen == 0))
+);
+
+/*************************************************
+ * Name:        crypto_sign_verify_pre_hash_shake256
+ *
+ * Description: FIPS 204: Algorithm 5 HashML-DSA.Verify with SHAKE256.
+ *              Verifies signature with pre-hashed message using SHAKE256.
+ *              This function computes the SHAKE256 hash of the message
+ *internally.
+ *
+ * Arguments:   - const uint8_t *sig: pointer to input signature
+ *              - size_t siglen: length of signature
+ *              - const uint8_t *m: pointer to message to be hashed and verified
+ *              - size_t mlen: length of message
+ *              - const uint8_t *ctx: pointer to context string
+ *              - size_t ctxlen: length of context string
+ *              - const uint8_t *pk: pointer to bit-packed public key
+ *
+ * Returns 0 if signature could be verified correctly and -1 otherwise
+ **************************************************/
+MLD_MUST_CHECK_RETURN_VALUE
+MLD_EXTERNAL_API
+int crypto_sign_verify_pre_hash_shake256(const uint8_t *sig, size_t siglen,
+                                         const uint8_t *m, size_t mlen,
+                                         const uint8_t *ctx, size_t ctxlen,
+                                         const uint8_t *pk)
+__contract__(
+  requires(mlen <= MLD_MAX_BUFFER_SIZE)
+  requires(ctxlen <= MLD_MAX_BUFFER_SIZE - 77)
+  requires(siglen <= MLD_MAX_BUFFER_SIZE)
+  requires(memory_no_alias(sig, siglen))
+  requires(memory_no_alias(m, mlen))
   requires(ctxlen == 0 || memory_no_alias(ctx, ctxlen))
   requires(memory_no_alias(pk, CRYPTO_PUBLICKEYBYTES))
   ensures(return_value == 0 || return_value == -1)

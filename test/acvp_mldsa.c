@@ -27,6 +27,12 @@
 #define SIGVER_PREHASH_USAGE                                               \
   "acvp_mldsa{lvl} sigVerPreHash ph=HEX context=HEX signature=HEX pk=HEX " \
   "hashAlg=STRING"
+#define SIGGEN_PREHASH_SHAKE256_USAGE                                      \
+  "acvp_mldsa{lvl} sigGenPreHashShake256 message=HEX context=HEX rnd=HEX " \
+  "sk=HEX"
+#define SIGVER_PREHASH_SHAKE256_USAGE                              \
+  "acvp_mldsa{lvl} sigVerPreHashShake256 message=HEX context=HEX " \
+  "signature=HEX pk=HEX"
 
 
 /* maximum message length used in the ACVP tests */
@@ -54,7 +60,9 @@ typedef enum
   sigVer,
   sigVerInternal,
   sigGenPreHash,
-  sigVerPreHash
+  sigVerPreHash,
+  sigGenPreHashShake256,
+  sigVerPreHashShake256
 } acvp_mode;
 
 /* Decode hex character [0-9A-Fa-f] into 0-15 */
@@ -377,6 +385,33 @@ static int acvp_mldsa_sigVerPreHash_AFT(
                                               str_to_hash_alg(hashAlg));
 }
 
+static int acvp_mldsa_sigGenPreHashShake256_AFT(
+    const unsigned char *message, size_t mlen, const unsigned char *context,
+    size_t ctxlen, const unsigned char rnd[MLDSA_RNDBYTES],
+    const unsigned char sk[CRYPTO_SECRETKEYBYTES])
+{
+  unsigned char signature[CRYPTO_BYTES];
+  size_t siglen;
+
+  if (crypto_sign_signature_pre_hash_shake256(signature, &siglen, message, mlen,
+                                              context, ctxlen, rnd, sk) != 0)
+  {
+    return 1;
+  }
+
+  print_hex("signature", signature, siglen);
+  return 0;
+}
+
+static int acvp_mldsa_sigVerPreHashShake256_AFT(
+    const unsigned char *message, size_t mlen, const unsigned char *context,
+    size_t ctxlen, const unsigned char signature[CRYPTO_BYTES],
+    const unsigned char pk[CRYPTO_PUBLICKEYBYTES])
+{
+  return crypto_sign_verify_pre_hash_shake256(signature, CRYPTO_BYTES, message,
+                                              mlen, context, ctxlen, pk);
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -420,6 +455,14 @@ int main(int argc, char *argv[])
   else if (strcmp(*argv, "sigVerPreHash") == 0)
   {
     mode = sigVerPreHash;
+  }
+  else if (strcmp(*argv, "sigGenPreHashShake256") == 0)
+  {
+    mode = sigGenPreHashShake256;
+  }
+  else if (strcmp(*argv, "sigVerPreHashShake256") == 0)
+  {
+    mode = sigVerPreHashShake256;
   }
   else
   {
@@ -783,6 +826,115 @@ int main(int argc, char *argv[])
       return acvp_mldsa_sigVerPreHash_AFT(ph, phlen, context, ctxlen, signature,
                                           pk, hashAlg);
     }
+
+    case sigGenPreHashShake256:
+    {
+      unsigned char message[MAX_MSG_LENGTH];
+      unsigned char context[MAX_CTX_LENGTH];
+      unsigned char rnd[MLDSA_RNDBYTES];
+      unsigned char sk[CRYPTO_SECRETKEYBYTES];
+      size_t mlen;
+      size_t ctxlen;
+
+      /* Parse message */
+      if (argc == 0)
+      {
+        goto siggen_prehash_shake256_usage;
+      }
+      mlen = (strlen(*argv) - strlen("message=")) / 2;
+      if (mlen > MAX_MSG_LENGTH ||
+          decode_hex("message", message, mlen, *argv) != 0)
+      {
+        goto siggen_prehash_shake256_usage;
+      }
+      argc--, argv++;
+
+      /* Parse context */
+      if (argc == 0)
+      {
+        goto siggen_prehash_shake256_usage;
+      }
+      ctxlen = (strlen(*argv) - strlen("context=")) / 2;
+      if (ctxlen > MAX_CTX_LENGTH ||
+          decode_hex("context", context, ctxlen, *argv) != 0)
+      {
+        goto siggen_prehash_shake256_usage;
+      }
+      argc--, argv++;
+
+      /* Parse rnd */
+      if (argc == 0 || decode_hex("rnd", rnd, sizeof(rnd), *argv) != 0)
+      {
+        goto siggen_prehash_shake256_usage;
+      }
+      argc--, argv++;
+
+      /* Parse sk */
+      if (argc == 0 || decode_hex("sk", sk, sizeof(sk), *argv) != 0)
+      {
+        goto siggen_prehash_shake256_usage;
+      }
+      argc--, argv++;
+
+      /* Call function under test */
+      return acvp_mldsa_sigGenPreHashShake256_AFT(message, mlen, context,
+                                                  ctxlen, rnd, sk);
+    }
+
+    case sigVerPreHashShake256:
+    {
+      unsigned char message[MAX_MSG_LENGTH];
+      unsigned char context[MAX_CTX_LENGTH];
+      unsigned char signature[CRYPTO_BYTES];
+      unsigned char pk[CRYPTO_PUBLICKEYBYTES];
+      size_t mlen;
+      size_t ctxlen;
+
+      /* Parse message */
+      if (argc == 0)
+      {
+        goto sigver_prehash_shake256_usage;
+      }
+      mlen = (strlen(*argv) - strlen("message=")) / 2;
+      if (mlen > MAX_MSG_LENGTH ||
+          decode_hex("message", message, mlen, *argv) != 0)
+      {
+        goto sigver_prehash_shake256_usage;
+      }
+      argc--, argv++;
+
+      /* Parse context */
+      if (argc == 0)
+      {
+        goto sigver_prehash_shake256_usage;
+      }
+      ctxlen = (strlen(*argv) - strlen("context=")) / 2;
+      if (ctxlen > MAX_CTX_LENGTH ||
+          decode_hex("context", context, ctxlen, *argv) != 0)
+      {
+        goto sigver_prehash_shake256_usage;
+      }
+      argc--, argv++;
+
+      /* Parse signature */
+      if (argc == 0 ||
+          decode_hex("signature", signature, sizeof(signature), *argv) != 0)
+      {
+        goto sigver_prehash_shake256_usage;
+      }
+      argc--, argv++;
+
+      /* Parse pk */
+      if (argc == 0 || decode_hex("pk", pk, sizeof(pk), *argv) != 0)
+      {
+        goto sigver_prehash_shake256_usage;
+      }
+      argc--, argv++;
+
+      /* Call function under test */
+      return acvp_mldsa_sigVerPreHashShake256_AFT(message, mlen, context,
+                                                  ctxlen, signature, pk);
+    }
   }
 
   return (0);
@@ -817,5 +969,13 @@ siggen_prehash_usage:
 
 sigver_prehash_usage:
   fprintf(stderr, SIGVER_PREHASH_USAGE "\n");
+  return (1);
+
+siggen_prehash_shake256_usage:
+  fprintf(stderr, SIGGEN_PREHASH_SHAKE256_USAGE "\n");
+  return (1);
+
+sigver_prehash_shake256_usage:
+  fprintf(stderr, SIGVER_PREHASH_SHAKE256_USAGE "\n");
   return (1);
 }

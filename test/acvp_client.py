@@ -172,18 +172,29 @@ def run_sigGen_test(tg, tc):
         tc["rnd"] = "0" * 64
 
     if tg["preHash"] == "preHash":
-        ph = compute_hash(tc["message"], tc["hashAlg"])
         assert len(tc["context"]) <= 2 * 255
 
-        acvp_call = exec_prefix + [
-            acvp_bin,
-            "sigGenPreHash",
-            f"ph={ph}",
-            f"context={tc['context']}",
-            f"rng={tc['rnd']}",
-            f"sk={tc['sk']}",
-            f"hashAlg={tc['hashAlg']}",
-        ]
+        # Use specialized SHAKE256 function that computes hash internally
+        if tc["hashAlg"] == "SHAKE-256":
+            acvp_call = exec_prefix + [
+                acvp_bin,
+                "sigGenPreHashShake256",
+                f"message={tc['message']}",
+                f"context={tc['context']}",
+                f"rnd={tc['rnd']}",
+                f"sk={tc['sk']}",
+            ]
+        else:
+            ph = compute_hash(tc["message"], tc["hashAlg"])
+            acvp_call = exec_prefix + [
+                acvp_bin,
+                "sigGenPreHash",
+                f"ph={ph}",
+                f"context={tc['context']}",
+                f"rng={tc['rnd']}",
+                f"sk={tc['sk']}",
+                f"hashAlg={tc['hashAlg']}",
+            ]
     elif tg["signatureInterface"] == "external":
         assert tc["hashAlg"] == "none"
         assert len(tc["context"]) <= 2 * 255
@@ -238,18 +249,29 @@ def run_sigVer_test(tg, tc):
     acvp_bin = get_acvp_binary(tg)
 
     if tg["preHash"] == "preHash":
-        ph = compute_hash(tc["message"], tc["hashAlg"])
         assert len(tc["context"]) <= 2 * 255
 
-        acvp_call = exec_prefix + [
-            acvp_bin,
-            "sigVerPreHash",
-            f"ph={ph}",
-            f"context={tc['context']}",
-            f"signature={tc['signature']}",
-            f"pk={tc['pk']}",
-            f"hashAlg={tc['hashAlg']}",
-        ]
+        # Use specialized SHAKE256 function that computes hash internally
+        if tc["hashAlg"] == "SHAKE-256":
+            acvp_call = exec_prefix + [
+                acvp_bin,
+                "sigVerPreHashShake256",
+                f"message={tc['message']}",
+                f"context={tc['context']}",
+                f"signature={tc['signature']}",
+                f"pk={tc['pk']}",
+            ]
+        else:
+            ph = compute_hash(tc["message"], tc["hashAlg"])
+            acvp_call = exec_prefix + [
+                acvp_bin,
+                "sigVerPreHash",
+                f"ph={ph}",
+                f"context={tc['context']}",
+                f"signature={tc['signature']}",
+                f"pk={tc['pk']}",
+                f"hashAlg={tc['hashAlg']}",
+            ]
     elif tg["signatureInterface"] == "external":
         assert tc["hashAlg"] == "none"
         assert len(tc["context"]) <= 2 * 255

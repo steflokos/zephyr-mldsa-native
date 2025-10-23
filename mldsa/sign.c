@@ -929,3 +929,38 @@ int crypto_sign_verify_pre_hash_internal(const uint8_t *sig, size_t siglen,
   mld_zeroize(fmsg, sizeof(fmsg));
   return result;
 }
+
+MLD_MUST_CHECK_RETURN_VALUE
+MLD_EXTERNAL_API
+int crypto_sign_signature_pre_hash_shake256(uint8_t *sig, size_t *siglen,
+                                            const uint8_t *m, size_t mlen,
+                                            const uint8_t *ctx, size_t ctxlen,
+                                            const uint8_t rnd[MLDSA_RNDBYTES],
+                                            const uint8_t *sk)
+{
+  MLD_ALIGN uint8_t ph[64];
+  int result;
+  mld_shake256(ph, sizeof(ph), m, mlen);
+  result = crypto_sign_signature_pre_hash_internal(
+      sig, siglen, ph, sizeof(ph), ctx, ctxlen, rnd, sk, MLD_SHAKE_256);
+  /* @[FIPS204, Section 3.6.3] Destruction of intermediate values. */
+  mld_zeroize(ph, sizeof(ph));
+  return result;
+}
+
+MLD_MUST_CHECK_RETURN_VALUE
+MLD_EXTERNAL_API
+int crypto_sign_verify_pre_hash_shake256(const uint8_t *sig, size_t siglen,
+                                         const uint8_t *m, size_t mlen,
+                                         const uint8_t *ctx, size_t ctxlen,
+                                         const uint8_t *pk)
+{
+  MLD_ALIGN uint8_t ph[64];
+  int result;
+  mld_shake256(ph, sizeof(ph), m, mlen);
+  result = crypto_sign_verify_pre_hash_internal(sig, siglen, ph, sizeof(ph),
+                                                ctx, ctxlen, pk, MLD_SHAKE_256);
+  /* @[FIPS204, Section 3.6.3] Destruction of intermediate values. */
+  mld_zeroize(ph, sizeof(ph));
+  return result;
+}
