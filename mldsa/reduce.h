@@ -62,7 +62,7 @@ __contract__(
   const uint64_t QINV = 58728449;
 
   /*  Compute a*q^{-1} mod 2^32 in unsigned representatives */
-  const uint32_t a_reduced = a & UINT32_MAX;
+  const uint32_t a_reduced = mld_cast_int64_to_uint32(a);
   const uint32_t a_inverted = (a_reduced * QINV) & UINT32_MAX;
 
   /* Lift to signed canonical representative mod 2^32. */
