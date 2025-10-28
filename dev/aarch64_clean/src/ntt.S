@@ -2,6 +2,7 @@
  * Copyright (c) 2022 Hanno Becker
  * Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer
  * Copyright (c) The mlkem-native project authors
+ * Copyright (c) The mldsa-native project authors
  * SPDX-License-Identifier: Apache-2.0 OR ISC OR MIT
  */
 
@@ -19,99 +20,83 @@
  *   https://eprint.iacr.org/2022/1303
  */
 
-/*yaml
-  Name: ntt_asm
-  Description: AArch64 ML-KEM forward NTT following @[NeonNTT] and @[SLOTHY_Paper]
-  Signature: void mlk_ntt_asm(int16_t p[256], const int16_t twiddles12345[80], const int16_t twiddles56[384])
-  ABI:
-    x0:
-      type: buffer
-      size_bytes: 512
-      permissions: read/write
-      c_parameter: int16_t p[256]
-      description: Input/output polynomial
-    x1:
-      type: buffer
-      size_bytes: 160
-      permissions: read-only
-      c_parameter: const int16_t twiddles12345[80]
-      description: Twiddle factors for layers 1-5
-    x2:
-      type: buffer
-      size_bytes: 768
-      permissions: read-only
-      c_parameter: const int16_t twiddles56[384]
-      description: Twiddle factors for layers 6-7
-  Stack:
-    bytes: 64
-    description: saving callee-saved Neon registers
-*/
+/* AArch64 ML-DSA forward NTT following @[NeonNTT] and @[SLOTHY_Paper] */
 
 #include "../../../common.h"
-#if defined(MLK_ARITH_BACKEND_AARCH64) && \
-    !defined(MLK_CONFIG_MULTILEVEL_NO_SHARED)
+#if defined(MLD_ARITH_BACKEND_AARCH64) && \
+    !defined(MLD_CONFIG_MULTILEVEL_NO_SHARED)
 /* simpasm: header-end */
 
-// Bounds:
-// If C is chosen so that |src| < q * C, then |dst| < q * (0.0508 * C + 1/2)
-//
-// See mlken/reduce.c and test/test_bounds.py for more details.
 .macro mulmodq dst, src, const, idx0, idx1
         // Signed barrett multiplication @[NeonNTT, Section 3.1.2] using
         // round-to-nearest-even-integer approximation. Following loc.cit.,
         // this is functionally the same as a signed Montgomery multiplication
         // with a suitable constant of absolute value < q.
-        sqrdmulh t2.8h,      \src\().8h, \const\().h[\idx1\()]
-        mul      \dst\().8h, \src\().8h, \const\().h[\idx0\()]
-        mls      \dst\().8h, t2.8h,      consts.h[0]
+        sqrdmulh t2.4s,      \src\().4s, \const\().s[\idx1\()]
+        mul      \dst\().4s, \src\().4s, \const\().s[\idx0\()]
+        mls      \dst\().4s, t2.4s,      consts.s[0]
 .endm
 
 .macro mulmod dst, src, const, const_twisted
-        sqrdmulh t2.8h,   \src\().8h, \const_twisted\().8h
-        mul      \dst\().8h, \src\().8h, \const\().8h
-        mls      \dst\().8h, t2.8h,   consts.h[0]
+        sqrdmulh t2.4s,   \src\().4s, \const_twisted\().4s
+        mul      \dst\().4s, \src\().4s, \const\().4s
+        mls      \dst\().4s, t2.4s,   consts.s[0]
 .endm
 
 .macro ct_butterfly a, b, root, idx0, idx1
         mulmodq tmp, \b, \root, \idx0, \idx1
-        sub \b\().8h, \a\().8h, tmp.8h
-        add \a\().8h, \a\().8h, tmp.8h
+        sub \b\().4s, \a\().4s, tmp.4s
+        add \a\().4s, \a\().4s, tmp.4s
 .endm
 
 .macro ct_butterfly_v a, b, root, root_twisted
         mulmod tmp, \b, \root, \root_twisted
-        sub \b\().8h, \a\().8h, tmp.8h
-        add \a\().8h, \a\().8h, tmp.8h
+        sub \b\().4s, \a\().4s, tmp.4s
+        add \a\().4s, \a\().4s, tmp.4s
 .endm
 
 .macro load_roots_123
-        ldr q_root0, [r12345_ptr], #32
-        ldr q_root1, [r12345_ptr, #-16]
+        ldr q_root0, [r012345_ptr], #(4*16)
+        ldr q_root1, [r012345_ptr, #(-4*16 + 1*16)]
+        ldr q_root2, [r012345_ptr, #(-4*16 + 2*16)]
+        ldr q_root3, [r012345_ptr, #(-4*16 + 3*16)]
 .endm
 
-.macro load_next_roots_45
-        ldr q_root0, [r12345_ptr], #16
+.macro load_next_roots_456
+       ldr q_root0, [r012345_ptr], #(4*16)
+       ldr q_root1, [r012345_ptr, #(-4*16 + 1*16)]
+       ldr q_root2, [r012345_ptr, #(-4*16 + 2*16)]
+       ldr q_root3, [r012345_ptr, #(-4*16 + 3*16)]
 .endm
 
-.macro load_next_roots_67
-        ldr q_root0,    [r67_ptr], #(6*16)
-        ldr q_root0_tw, [r67_ptr, #(-6*16 + 1*16)]
-        ldr q_root1,    [r67_ptr, #(-6*16 + 2*16)]
-        ldr q_root1_tw, [r67_ptr, #(-6*16 + 3*16)]
-        ldr q_root2,    [r67_ptr, #(-6*16 + 4*16)]
-        ldr q_root2_tw, [r67_ptr, #(-6*16 + 5*16)]
+.macro load_next_roots_78_1
+        ldr q_root0,    [r67_ptr], #(12*16)
+        ldr q_root0_tw, [r67_ptr, #(-12*16 + 1*16)]
+        ldr q_root1,    [r67_ptr, #(-12*16 + 2*16)]
+        ldr q_root1_tw, [r67_ptr, #(-12*16 + 3*16)]
+        ldr q_root2,    [r67_ptr, #(-12*16 + 4*16)]
+        ldr q_root2_tw, [r67_ptr, #(-12*16 + 5*16)]
 .endm
 
-.macro transpose4 data
-        trn1 t0.4s, \data\()0.4s, \data\()1.4s
-        trn2 t1.4s, \data\()0.4s, \data\()1.4s
-        trn1 t2.4s, \data\()2.4s, \data\()3.4s
-        trn2 t3.4s, \data\()2.4s, \data\()3.4s
+.macro load_next_roots_78_2
+        ldr q_root0,    [r67_ptr, #(-12*16 + 6*16)]
+        ldr q_root0_tw, [r67_ptr, #(-12*16 + 7*16)]
+        ldr q_root1,    [r67_ptr, #(-12*16 + 8*16)]
+        ldr q_root1_tw, [r67_ptr, #(-12*16 + 9*16)]
+        ldr q_root2,    [r67_ptr, #(-12*16 + 10*16)]
+        ldr q_root2_tw, [r67_ptr, #(-12*16 + 11*16)]
+.endm
 
-        trn2 \data\()2.2d, t0.2d, t2.2d
-        trn2 \data\()3.2d, t1.2d, t3.2d
-        trn1 \data\()0.2d, t0.2d, t2.2d
-        trn1 \data\()1.2d, t1.2d, t3.2d
+.macro transpose4 data0, data1, data2, data3
+        trn1 t0.4s, \data0\().4s, \data1\().4s
+        trn2 t1.4s, \data0\().4s, \data1\().4s
+        trn1 t2.4s, \data2\().4s, \data3\().4s
+        trn2 t3.4s, \data2\().4s, \data3\().4s
+
+        trn2 \data2\().2d, t0.2d, t2.2d
+        trn2 \data3\().2d, t1.2d, t3.2d
+        trn1 \data0\().2d, t0.2d, t2.2d
+        trn1 \data1\().2d, t1.2d, t3.2d
 .endm
 
 .macro save_vregs
@@ -139,9 +124,9 @@
 .endm
 
         // Arguments
-        in         .req x0 // Input/output buffer
-        r12345_ptr .req x1 // twiddles for layer 0,1,2,3,4
-        r67_ptr    .req x2 // twiddles for layer 5,6
+        in          .req x0  // Input/output buffer
+        r012345_ptr .req x1  // twiddles for layer 0,1,2,3,4,5
+        r67_ptr     .req x2  // twiddles for layer 6,7
 
         inp     .req x3
         count   .req x4
@@ -168,6 +153,7 @@
         root0    .req v0
         root1    .req v1
         root2    .req v2
+        root3    .req v3
         root0_tw .req v4
         root1_tw .req v5
         root2_tw .req v6
@@ -175,6 +161,7 @@
         q_root0    .req q0
         q_root1    .req q1
         q_root2    .req q2
+        q_root3    .req q3
         q_root0_tw .req q4
         q_root1_tw .req q5
         q_root2_tw .req q6
@@ -188,46 +175,33 @@
         t3  .req v28
 
         .text
-        .global MLK_ASM_NAMESPACE(ntt_asm)
+        .global MLD_ASM_NAMESPACE(ntt_asm)
         .balign 4
-MLK_ASM_FN_SYMBOL(ntt_asm)
+MLD_ASM_FN_SYMBOL(ntt_asm)
         push_stack
 
-        mov wtmp, #3329
-        mov consts.h[0], wtmp
-        mov wtmp, #20159
-        mov consts.h[1], wtmp
+        // load MLDSA_Q = 8380417
+        movz wtmp, #57345
+        movk wtmp, #127, lsl #16
+        dup consts.4s, wtmp
 
         mov inp, in
-        mov count, #4
+        mov count, #8
 
         load_roots_123
 
         .p2align 2
 
-        // Bounds reasoning:
-        // - There are 7 layers
-        // - When passing from layer N to layer N+1, each layer-N value
-        // is modified through the addition/subtraction of a Montgomery
-        // product of a twiddle of absolute value < q/2 and a layer-N value.
-        // - Recalling that for C such that |a| < C * q and |t|<q/2, we have
-        // |mlk_fqmul(a,t)| < q * (0.0254*C + 1/2), we see that the coefficients
-        // of layer N (starting with layer 0 = input data) are bound by q * f^N(1),
-        // where f(C) = 1/2 + 1.0508*C.
-        // For N=7, we get the bound of f^7(1) * q < 18295.
-        //
-        // See test/test_bounds.py for more details.
-
 ntt_layer123_start:
 
         ldr q_data0, [in, #0]
-        ldr q_data1, [in, #(1*(512/8))]
-        ldr q_data2, [in, #(2*(512/8))]
-        ldr q_data3, [in, #(3*(512/8))]
-        ldr q_data4, [in, #(4*(512/8))]
-        ldr q_data5, [in, #(5*(512/8))]
-        ldr q_data6, [in, #(6*(512/8))]
-        ldr q_data7, [in, #(7*(512/8))]
+        ldr q_data1, [in, #(1*(1024/8))]
+        ldr q_data2, [in, #(2*(1024/8))]
+        ldr q_data3, [in, #(3*(1024/8))]
+        ldr q_data4, [in, #(4*(1024/8))]
+        ldr q_data5, [in, #(5*(1024/8))]
+        ldr q_data6, [in, #(6*(1024/8))]
+        ldr q_data7, [in, #(7*(1024/8))]
 
         ct_butterfly data0, data4, root0, 0, 1
         ct_butterfly data1, data5, root0, 0, 1
@@ -236,22 +210,22 @@ ntt_layer123_start:
 
         ct_butterfly data0, data2, root0, 2, 3
         ct_butterfly data1, data3, root0, 2, 3
-        ct_butterfly data4, data6, root0, 4, 5
-        ct_butterfly data5, data7, root0, 4, 5
+        ct_butterfly data4, data6, root1, 0, 1
+        ct_butterfly data5, data7, root1, 0, 1
 
-        ct_butterfly data0, data1, root0, 6, 7
-        ct_butterfly data2, data3, root1, 0, 1
-        ct_butterfly data4, data5, root1, 2, 3
-        ct_butterfly data6, data7, root1, 4, 5
+        ct_butterfly data0, data1, root1, 2, 3
+        ct_butterfly data2, data3, root2, 0, 1
+        ct_butterfly data4, data5, root2, 2, 3
+        ct_butterfly data6, data7, root3, 0, 1
 
         str q_data0, [in], #(16)
-        str q_data1, [in, #(-16 + 1*(512/8))]
-        str q_data2, [in, #(-16 + 2*(512/8))]
-        str q_data3, [in, #(-16 + 3*(512/8))]
-        str q_data4, [in, #(-16 + 4*(512/8))]
-        str q_data5, [in, #(-16 + 5*(512/8))]
-        str q_data6, [in, #(-16 + 6*(512/8))]
-        str q_data7, [in, #(-16 + 7*(512/8))]
+        str q_data1, [in, #(-16 + 1*(1024/8))]
+        str q_data2, [in, #(-16 + 2*(1024/8))]
+        str q_data3, [in, #(-16 + 3*(1024/8))]
+        str q_data4, [in, #(-16 + 4*(1024/8))]
+        str q_data5, [in, #(-16 + 5*(1024/8))]
+        str q_data6, [in, #(-16 + 6*(1024/8))]
+        str q_data7, [in, #(-16 + 7*(1024/8))]
 
         subs count, count, #1
         cbnz count, ntt_layer123_start
@@ -260,44 +234,71 @@ ntt_layer123_start:
         mov count, #8
 
         .p2align 2
-ntt_layer4567_start:
+ntt_layer45678_start:
 
         ldr q_data0, [in, #(16*0)]
         ldr q_data1, [in, #(16*1)]
         ldr q_data2, [in, #(16*2)]
         ldr q_data3, [in, #(16*3)]
+        ldr q_data4, [in, #(16*4)]
+        ldr q_data5, [in, #(16*5)]
+        ldr q_data6, [in, #(16*6)]
+        ldr q_data7, [in, #(16*7)]
 
-        load_next_roots_45
+        load_next_roots_456
 
-        ct_butterfly data0, data2, root0, 0, 1
-        ct_butterfly data1, data3, root0, 0, 1
-        ct_butterfly data0, data1, root0, 2, 3
-        ct_butterfly data2, data3, root0, 4, 5
+        ct_butterfly data0, data4, root0, 0, 1
+        ct_butterfly data1, data5, root0, 0, 1
+        ct_butterfly data2, data6, root0, 0, 1
+        ct_butterfly data3, data7, root0, 0, 1
 
-        transpose4 data
-        load_next_roots_67
+        ct_butterfly data0, data2, root0, 2, 3
+        ct_butterfly data1, data3, root0, 2, 3
+        ct_butterfly data4, data6, root1, 0, 1
+        ct_butterfly data5, data7, root1, 0, 1
+
+        ct_butterfly data0, data1, root1, 2, 3
+        ct_butterfly data2, data3, root2, 0, 1
+        ct_butterfly data4, data5, root2, 2, 3
+        ct_butterfly data6, data7, root3, 0, 1
+
+        transpose4 data0, data1, data2, data3
+        transpose4 data4, data5, data6, data7
+        load_next_roots_78_1
 
         ct_butterfly_v data0, data2, root0, root0_tw
         ct_butterfly_v data1, data3, root0, root0_tw
         ct_butterfly_v data0, data1, root1, root1_tw
         ct_butterfly_v data2, data3, root2, root2_tw
 
-        transpose4 data
+        load_next_roots_78_2
 
-        str q_data0, [in], #(16*4)
-        str q_data1, [in, #(-16*3)]
-        str q_data2, [in, #(-16*2)]
-        str q_data3, [in, #(-16*1)]
+        ct_butterfly_v data4, data6, root0, root0_tw
+        ct_butterfly_v data5, data7, root0, root0_tw
+        ct_butterfly_v data4, data5, root1, root1_tw
+        ct_butterfly_v data6, data7, root2, root2_tw
+
+        transpose4 data0, data1, data2, data3
+        transpose4 data4, data5, data6, data7
+
+        str q_data0, [in], #(16*8)
+        str q_data1, [in, #(-16*7)]
+        str q_data2, [in, #(-16*6)]
+        str q_data3, [in, #(-16*5)]
+        str q_data4, [in, #(-16*4)]
+        str q_data5, [in, #(-16*3)]
+        str q_data6, [in, #(-16*2)]
+        str q_data7, [in, #(-16*1)]
 
         subs count, count, #1
-        cbnz count, ntt_layer4567_start
+        cbnz count, ntt_layer45678_start
 
         pop_stack
         ret
 
 /****************** REGISTER DEALLOCATIONS *******************/
     .unreq in
-    .unreq r12345_ptr
+    .unreq r012345_ptr
     .unreq r67_ptr
     .unreq inp
     .unreq count
@@ -321,12 +322,14 @@ ntt_layer4567_start:
     .unreq root0
     .unreq root1
     .unreq root2
+    .unreq root3
     .unreq root0_tw
     .unreq root1_tw
     .unreq root2_tw
     .unreq q_root0
     .unreq q_root1
     .unreq q_root2
+    .unreq q_root3
     .unreq q_root0_tw
     .unreq q_root1_tw
     .unreq q_root2_tw
@@ -338,4 +341,4 @@ ntt_layer4567_start:
     .unreq t3
 
 /* simpasm: footer-start */
-#endif /* MLK_ARITH_BACKEND_AARCH64 && !MLK_CONFIG_MULTILEVEL_NO_SHARED */
+#endif /* MLD_ARITH_BACKEND_AARCH64 && !MLD_CONFIG_MULTILEVEL_NO_SHARED */
