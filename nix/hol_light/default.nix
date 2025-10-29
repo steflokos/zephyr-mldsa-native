@@ -2,7 +2,7 @@
 # Copyright (c) The mldsa-native project authors
 # SPDX-License-Identifier: Apache-2.0 OR ISC OR MIT
 
-{ hol_light, fetchFromGitHub, writeText, ... }:
+{ hol_light, fetchFromGitHub, writeText, ocamlPackages, ledit, ... }:
 hol_light.overrideAttrs (old: {
   setupHook = writeText "setup-hook.sh" ''
     export HOLDIR="$1/lib/hol_light"
@@ -15,8 +15,11 @@ hol_light.overrideAttrs (old: {
     rev = "0e4b1bd8c7d400214d6fa6027f15a4221b54f8d4";
     hash = "sha256-M6ddzqoAFyMBmaznuz31+o035xdEz4VXZMHhH4Dm4c8=";
   };
-  patches = [ ./0005-Fix-hollight-path.patch ];
-  propagatedBuildInputs = old.propagatedBuildInputs ++ old.nativeBuildInputs;
+  patches = [
+    ./0005-Configure-hol-sh-for-mldsa-native.patch
+    ./0006-Add-findlib-to-ocaml-hol.patch
+  ];
+  propagatedBuildInputs = old.propagatedBuildInputs ++ old.nativeBuildInputs ++ [ ocamlPackages.pcre2 ledit ];
   buildPhase = ''
     HOLLIGHT_USE_MODULE=1 make hol.sh
     patchShebangs hol.sh
