@@ -7,13 +7,14 @@ hol_light.overrideAttrs (old: {
   setupHook = writeText "setup-hook.sh" ''
     export HOLDIR="$1/lib/hol_light"
     export HOLLIGHT_DIR="$1/lib/hol_light"
+    export PATH="$1/lib/hol_light:$PATH"
   '';
-  version = "unstable-2024-12-22";
+  version = "unstable-2025-09-22";
   src = fetchFromGitHub {
     owner = "jrh13";
     repo = "hol-light";
-    rev = "0e4b1bd8c7d400214d6fa6027f15a4221b54f8d4";
-    hash = "sha256-M6ddzqoAFyMBmaznuz31+o035xdEz4VXZMHhH4Dm4c8=";
+    rev = "bed58fa74649fa74015176f8f90e77f7af5cf8e3";
+    hash = "sha256-QDubbUUChvv04239BdcKPSU+E2gdSzqAWfAETK2Xtg0=";
   };
   patches = [
     ./0005-Configure-hol-sh-for-mldsa-native.patch
