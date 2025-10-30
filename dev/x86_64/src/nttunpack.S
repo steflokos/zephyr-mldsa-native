@@ -43,31 +43,16 @@ vpsrlq		$32,%ymm\r0,%ymm\r0
 vpblendd	$0xAA,%ymm\r1,%ymm\r0,%ymm\r3
 .endm
 
-
-.text
-.balign 4
-.global MLD_ASM_NAMESPACE(nttunpack_avx2)
-MLD_ASM_FN_SYMBOL(nttunpack_avx2)
-
-call		nttunpack128_avx
-add		$256,%rdi
-call		nttunpack128_avx
-add		$256,%rdi
-call		nttunpack128_avx
-add		$256,%rdi
-call		nttunpack128_avx
-ret
-
-nttunpack128_avx:
+.macro nttunpack_64_coefficients offset
 #load
-vmovdqa		(%rdi),%ymm4
-vmovdqa		32(%rdi),%ymm5
-vmovdqa		64(%rdi),%ymm6
-vmovdqa		96(%rdi),%ymm7
-vmovdqa		128(%rdi),%ymm8
-vmovdqa		160(%rdi),%ymm9
-vmovdqa		192(%rdi),%ymm10
-vmovdqa		224(%rdi),%ymm11
+vmovdqa		(\offset +   0)(%rdi), %ymm4
+vmovdqa		(\offset +  32)(%rdi), %ymm5
+vmovdqa		(\offset +  64)(%rdi), %ymm6
+vmovdqa		(\offset +  96)(%rdi), %ymm7
+vmovdqa		(\offset + 128)(%rdi), %ymm8
+vmovdqa		(\offset + 160)(%rdi), %ymm9
+vmovdqa		(\offset + 192)(%rdi), %ymm10
+vmovdqa		(\offset + 224)(%rdi), %ymm11
 
 shuffle8	4,8,3,8
 shuffle8	5,9,4,9
@@ -85,14 +70,26 @@ shuffle2	3,4,5,4
 shuffle2	10,11,3,11
 
 #store
-vmovdqa		%ymm9,(%rdi)
-vmovdqa		%ymm8,32(%rdi)
-vmovdqa		%ymm7,64(%rdi)
-vmovdqa		%ymm6,96(%rdi)
-vmovdqa		%ymm5,128(%rdi)
-vmovdqa		%ymm4,160(%rdi)
-vmovdqa		%ymm3,192(%rdi)
-vmovdqa		%ymm11,224(%rdi)
+vmovdqa		%ymm9,  (\offset +   0)(%rdi)
+vmovdqa		%ymm8,  (\offset +  32)(%rdi)
+vmovdqa		%ymm7,  (\offset +  64)(%rdi)
+vmovdqa		%ymm6,  (\offset +  96)(%rdi)
+vmovdqa		%ymm5,  (\offset + 128)(%rdi)
+vmovdqa		%ymm4,  (\offset + 160)(%rdi)
+vmovdqa		%ymm3,  (\offset + 192)(%rdi)
+vmovdqa		%ymm11, (\offset + 224)(%rdi)
+.endm
+
+
+.text
+.balign 4
+.global MLD_ASM_NAMESPACE(nttunpack_avx2)
+MLD_ASM_FN_SYMBOL(nttunpack_avx2)
+
+nttunpack_64_coefficients 0
+nttunpack_64_coefficients 4*64
+nttunpack_64_coefficients 4*64*2
+nttunpack_64_coefficients 4*64*3
 
 ret
 
