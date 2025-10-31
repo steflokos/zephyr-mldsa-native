@@ -547,7 +547,9 @@ def gen_c_zeta_file(dry_run=False):
         yield "};"
         yield ""
 
-    update_file("mldsa/zetas.inc", "\n".join(gen()), dry_run=dry_run, force_format=True)
+    update_file(
+        "mldsa/src/zetas.inc", "\n".join(gen()), dry_run=dry_run, force_format=True
+    )
 
 
 def prepare_root_for_barrett(root):
@@ -1191,52 +1193,52 @@ def synchronize_backends(
         # We may switch the AArch64 arithmetic backend, so adjust the metadata file
         update_via_copy(
             f"dev/aarch64_{ty}/meta.h",
-            "mldsa/native/aarch64/meta.h",
+            "mldsa/src/native/aarch64/meta.h",
             dry_run=dry_run,
             transform=lambda c: adjust_header_guard_for_filename(
-                c, "mldsa/native/aarch64/meta.h"
+                c, "mldsa/src/native/aarch64/meta.h"
             ),
         )
 
         update_via_copy(
             f"dev/x86_64/meta.h",
-            "mldsa/native/x86_64/meta.h",
+            "mldsa/src/native/x86_64/meta.h",
             dry_run=dry_run,
             transform=lambda c: adjust_header_guard_for_filename(
-                c, "mldsa/native/x86_64/meta.h"
+                c, "mldsa/src/native/x86_64/meta.h"
             ),
         )
 
     synchronize_backend(
         f"dev/aarch64_{ty}/src",
-        "mldsa/native/aarch64/src",
+        "mldsa/src/native/aarch64/src",
         dry_run=dry_run,
         delete=delete,
         force_cross=force_cross,
         no_simplify=no_simplify,
-        cflags="-Imldsa/native/aarch64/src",
+        cflags="-Imldsa/src/native/aarch64/src",
     )
     synchronize_backend(
         "dev/fips202/aarch64/src",
-        "mldsa/fips202/native/aarch64/src",
+        "mldsa/src/fips202/native/aarch64/src",
         dry_run=dry_run,
         delete=delete,
         force_cross=force_cross,
         no_simplify=no_simplify,
-        cflags="-Imldsa/fips202/native/aarch64/src -march=armv8.4-a+sha3",
+        cflags="-Imldsa/src/fips202/native/aarch64/src -march=armv8.4-a+sha3",
     )
     synchronize_backend(
         "dev/fips202/aarch64",
-        "mldsa/fips202/native/aarch64",
+        "mldsa/src/fips202/native/aarch64",
         dry_run=dry_run,
         delete=delete,
         force_cross=force_cross,
         no_simplify=no_simplify,
-        cflags="-Imldsa/fips202/native/aarch64 -march=armv8.4-a+sha3",
+        cflags="-Imldsa/src/fips202/native/aarch64 -march=armv8.4-a+sha3",
     )
     synchronize_backend(
         "dev/x86_64/src",
-        "mldsa/native/x86_64/src",
+        "mldsa/src/native/x86_64/src",
         dry_run=dry_run,
         delete=delete,
         force_cross=force_cross,
@@ -1248,7 +1250,7 @@ def synchronize_backends(
         # macro.
         # This leads to duplicate endbr64 instructions causing a failure when
         # comparing the object code before and after simplification.
-        cflags="-Imldsa/native/x86_64/src/ -mavx2 -mbmi2 -msse4 -fcf-protection=none",
+        cflags="-Imldsa/src/native/x86_64/src/ -mavx2 -mbmi2 -msse4 -fcf-protection=none",
     )
 
 
@@ -1593,11 +1595,11 @@ def gen_bib_file(bibliography, dry_run=False):
 
 def get_oqs_shared_sources(backend):
     """Get shared source files for OQS integration"""
-    mldsa_dir = "mldsa"
+    mldsa_dir = "mldsa/src/"
 
     # add files mldsa/*
     sources = [
-        f"mldsa/{f}"
+        f"mldsa/src/{f}"
         for f in os.listdir(mldsa_dir)
         if os.path.isfile(f"{mldsa_dir}/{f}")
         and not f.endswith(".o")
@@ -1607,12 +1609,12 @@ def get_oqs_shared_sources(backend):
     if backend != "ref":
         # add files mldsa/native/* (API definitions)
         sources += [
-            f"mldsa/native/{f}"
+            f"mldsa/src/native/{f}"
             for f in os.listdir(f"{mldsa_dir}/native")
             if os.path.isfile(f"{mldsa_dir}/native/{f}")
         ]
     # We use a custom config
-    sources.remove("mldsa/config.h")
+    sources.remove("mldsa/src/config.h")
     # Add FIPS202 glue code
     sources += [
         "integration/liboqs/fips202_glue.h",
@@ -1628,7 +1630,7 @@ def get_oqs_shared_sources(backend):
 
 def get_oqs_native_sources(backend):
     """Get native source files for OQS integration"""
-    return [f"mldsa/native/{backend}"]
+    return [f"mldsa/src/native/{backend}"]
 
 
 def gen_oqs_meta_file(filename, dry_run=False):
@@ -1845,7 +1847,7 @@ def gen_test_configs(dry_run=False):
         metadata = yaml.safe_load(f)
 
     # Load default config
-    with open("mldsa/config.h", "r") as f:
+    with open("mldsa/src/config.h", "r") as f:
         default_config = f.read()
 
     # Generate each test config
