@@ -1,0 +1,18 @@
+menuconfig MLDSA_NATIVE
+    bool "ML-DSA Native Library"
+    default y
+    help
+      Enable the mldsa-native library (Dilithium).
+
+if MLDSA_NATIVE
+
+config MLDSA_LEVEL
+    int "Security Level (2, 3, or 5)"
+    default 5
+    range 2 5
+    help
+      2 = ML-DSA-44
+      3 = ML-DSA-65
+      5 = ML-DSA-87
+
+endif #MLDSA_NATIVE
