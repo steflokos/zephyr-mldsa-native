@@ -6,13 +6,21 @@ menuconfig MLDSA_NATIVE
 
 if MLDSA_NATIVE
 
-config MLDSA_LEVEL
-    int "Security Level (2, 3, or 5)"
-    default 5
-    range 2 5
+choice
+    prompt "Security Level"
+    default MLDSA_LEVEL_87
     help
-      2 = ML-DSA-44
-      3 = ML-DSA-65
-      5 = ML-DSA-87
+      Select the ML-DSA security level.
 
-endif #MLDSA_NATIVE
+config MLDSA_LEVEL_44
+    bool "ML-DSA-44 (NIST Level 2)"
+
+config MLDSA_LEVEL_65
+    bool "ML-DSA-65 (NIST Level 3)"
+
+config MLDSA_LEVEL_87
+    bool "ML-DSA-87 (NIST Level 5)"
+
+endchoice
+
+endif # MLDSA_NATIVE
