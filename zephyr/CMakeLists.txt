@@ -22,5 +22,5 @@ else()
     set(MLD_PARAM_VAL 87)
 endif()
 
-# Pass the correct macro name to the compiler
-zephyr_library_compile_definitions(MLD_CONFIG_PARAMETER_SET=${MLD_PARAM_VAL})
+# Pass the correct macro name to the compiler, GLOBALLY
+zephyr_compile_definitions(MLD_CONFIG_PARAMETER_SET=${MLD_PARAM_VAL})
