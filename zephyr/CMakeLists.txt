@@ -12,12 +12,15 @@ zephyr_library_sources(randombytes.c)
 
 # Convert the Kconfig Choice to the Integer expected by C code
 if(CONFIG_MLDSA_LEVEL_44)
-    set(MLDSA_MODE 2)
+    set(MLD_PARAM_VAL 44)
 elseif(CONFIG_MLDSA_LEVEL_65)
-    set(MLDSA_MODE 3)
+    set(MLD_PARAM_VAL 65)
+elseif(CONFIG_MLDSA_LEVEL_87)
+    set(MLD_PARAM_VAL 87)
 else()
-    set(MLDSA_MODE 5)
+    # Default fallback
+    set(MLD_PARAM_VAL 87)
 endif()
 
-
-zephyr_library_compile_definitions(MLDSA_MODE=${MLDSA_MODE})
+# Pass the correct macro name to the compiler
+zephyr_library_compile_definitions(MLD_CONFIG_PARAMETER_SET=${MLD_PARAM_VAL})
